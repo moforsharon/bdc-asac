@@ -32,7 +32,7 @@ const DisabledSecondaryPillButton = ({
         text={text}
         className="mb-[0px!important] text-grey-dark"
         // {...textOptions}
-        color={"grey-dark"}
+        color={"red"}
         variant={variant}
       />
 
