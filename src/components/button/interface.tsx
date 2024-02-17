@@ -1,5 +1,5 @@
-import { ITextProps } from "components/text/interface";
-import { IColor } from "configs";
+import { ITextProps } from "../text/interface";;
+import { IColor } from "@/src/configs";;
 
 export interface IButtonProps {
   text?: string;
