@@ -27,7 +27,7 @@ const CustomInput: React.FC<ICustomInputProps> = ({
         <Text
           variant="small"
           className={`!text-[${labelSize}]  !mb-[3px]`}
-          color="grey-dark"
+          color="timeBg"
           text={label}
         />
       <span className="h-8 flex justify-between items-center border-grey-dark border-[1px] rounded-lg  pl-2 pr-1">
