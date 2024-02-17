@@ -21,7 +21,7 @@ const SearchInput: React.FC<ISearchInputProps> = ({
         <Text
           variant="small"
           className="!text-[11.42px] !m-0 h-[14px] !-mt-1 capitalize"
-          color="grey-dark"
+          color="timeBg"
           text={"search"}
         />
       )}
