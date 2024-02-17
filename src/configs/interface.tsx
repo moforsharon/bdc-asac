@@ -1,8 +1,7 @@
-import { ITranslationKeys } from "assets";
+
 
 export type IAppLanguage = "en" | "fr";
 export interface IPageArgs {
-  t: (key: ITranslationKeys) => string;
 }
 
 export type IColor =
@@ -24,6 +23,4 @@ export type IColor =
   | "drawerBorder"
   | "border"
   | "backdrop"
-  | "grey-dark"
-  | "grey-light"
   | "timeBg";

@@ -1,4 +1,4 @@
-import { IColor } from "configs";
+import { IColor } from "@/src/configs";
 
 export interface ITextProps {
   text?: string;
