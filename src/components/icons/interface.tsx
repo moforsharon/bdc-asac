@@ -1,4 +1,4 @@
-import { IColor } from "configs";
+import { IColor } from "@/src/configs";
 
 export type IIconName =
   | "leftArrow"
