@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background-color:#ccc;
+  /* background: var(--page-background, #261f33); */
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.scroll-style::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.scroll-style::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+}
+
+
+/* Scrollbar Track */
+.scroll-style::-webkit-scrollbar {
+  width: 12px;
+  /* Width of the scrollbar */
+}
+
+/* Scrollbar Thumb */
+.scroll-style::-webkit-scrollbar-thumb {
+  background-color: #430101;
+  /* Color of the scrollbar thumb */
+  border-radius: 6px;
+}
+
+/* Scrollbar Track */
+.scroll-style::-webkit-scrollbar-track {
+  background-color: #000;
+  /* Color of the scrollbar track */
+}
+input[type="file"] {
+  /* Reset all styles to default */
+  appearance: auto;
+  -webkit-appearance: auto;
+  -moz-appearance: auto;
+  border: initial;
+  background-color: initial;
+  color: initial;
+  cursor: initial;
+  font-family: initial;
+  font-size: initial;
+  padding: initial;
+  margin: initial;
+  text-align: initial;
+  text-transform: initial;
+  vertical-align: initial;
+  width: initial;
+}
+
+/* Optional: Hide the default button (some browsers may not support this) */
+input[type="file"]::-webkit-file-upload-button {
+  display: none;
+}
+
+/* Optional: Style the file input field if needed */
+input[type="file"] {
+  /* Your custom styles here */
+}
