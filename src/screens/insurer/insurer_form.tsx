@@ -68,7 +68,14 @@ const proxiedApiUrl = "/api/createInsuranceCoupon";
      e.preventDefault();
       setActiveTab("Finished");
           try {
-      const response = await axios.get(`${proxiedApiUrl}?name=${formData.name}&product_type=${formData.product_type}&product_price=${price}&product_validity=${selectedValidity}`);
+          const response = await axios.get(proxiedApiUrl, {
+      params: {
+        name: formData.name,
+        product_type: formData.product_type,
+        product_price: price,
+        product_validity: selectedValidity
+      }
+    });
       console.log(response.data); // Handle success response
       setActiveTab("Finished");
     } catch (error) {
