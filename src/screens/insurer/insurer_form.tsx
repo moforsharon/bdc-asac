@@ -63,12 +63,12 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
 
 
 // Modified API URL with reverse proxy service
-const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/api/createInsuranceCoupon`;
+const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insurance_product/`;
     const handleSubmitClick = async (e:React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
       setActiveTab("Finished");
           try {
-          const response = await axios.get(apiUrl, {
+          const response = await axios.get('/api/createInsuranceProduct', {
       params: {
         name: formData.name,
         product_type: formData.product_type,
