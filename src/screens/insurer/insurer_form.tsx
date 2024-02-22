@@ -3,12 +3,12 @@ import Head from "next/head";
 import '../../../styles/globals.css'
 import { useState } from "react";
 import { FaCheckCircle, FaDownload } from 'react-icons/fa';
+import axios from "axios";
 interface IFormData {
-  insurance_product_name: string; // Define the type for insuranceName property
-  insurance_product_type: string
-  insurance_product_price: string,
-  insurance_product_validity: string;
-  number_to_generate: string,
+  name: string; // Define the type for insuranceName property
+  product_type: string
+  product_price: number,
+  product_validity: number;
 
 }
 interface TabItemProps {
@@ -30,7 +30,7 @@ const TabItem: React.FC<TabItemProps> = ({ title, active, onClick }) => {
 };
 const InsurerForm = () => {
   const [activeTab, setActiveTab] = useState("New Insurance");
-const [formData, setFormData] = useState<IFormData>({ insurance_product_name: "", insurance_product_type:"", insurance_product_price: "", insurance_product_validity: "", number_to_generate: "" });
+const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"", product_price: 0, product_validity: 0 });
   const handleTabClick = (tab: any) => {
     setActiveTab(tab);
   };
@@ -41,21 +41,38 @@ const [formData, setFormData] = useState<IFormData>({ insurance_product_name: ""
     }));
   };
   const [selectedInsurance, setSelectedInsurance] = useState<string>("");
-  const [selectedValidity, setSelectedValidity] = useState<string>("");
+  const [selectedValidity, setSelectedValidity] = useState<number>(0);
   
 
   const handleInsuranceChange = (value: string) => {
     setSelectedInsurance(value);
-    handleChange("insurance_product_type", value);
+    handleChange("product_type", value);
   };
   const handleValidityChange = (value: string) => {
-    setSelectedValidity(value); 
-    handleChange("insurance_product_validity", value)
+   let newVal = parseInt(value)
+    setSelectedValidity(newVal); 
+    // handleChange("product_validity", newVal)
   };
-    const handleSubmitClick = (e:React.MouseEvent<HTMLButtonElement>) => {
+  const apiUrl = 'https://afriscience-59aa5aca58b6.herokuapp.com/api/create_insurance_product/';
+
+// Modified API URL with reverse proxy service
+const proxiedApiUrl = "/api/createInsuranceProduct";
+    const handleSubmitClick = async (e:React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-    console.log(formData);
-    setActiveTab("Finished");
+      setActiveTab("Finished");
+          try {
+            const response = await axios.post(proxiedApiUrl, {
+              name : formData.name,
+              product_type: formData.product_type,
+              product_price: formData.product_price,
+              product_validity: selectedValidity
+
+      });
+      console.log(response.data); // Handle success response
+      setActiveTab("Finished");
+    } catch (error) {
+      console.error('Error submitting form data:', error); // Handle error
+    }
   };
   return (
     <div className="">
@@ -95,8 +112,8 @@ const [formData, setFormData] = useState<IFormData>({ insurance_product_name: ""
                     placeholder={"Enter insurance name"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insurance_product_name}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_product_name", e.target.value)}
+                    value={formData?.name}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("name", e.target.value)}
                     
                   />
                   <Dropdown
@@ -128,16 +145,16 @@ const [formData, setFormData] = useState<IFormData>({ insurance_product_name: ""
                     placeholder={"Enter price of insurance"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData.insurance_product_price} // Pass the selected value
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_product_price", e.target.value)}
+                    value={formData.product_price} // Pass the selected value
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("product_price", e.target.value)}
                     type="number"
                   />
                   <Dropdown
                     placeholder="How long is the insurance valid"
                     data={[
-                      "2 Month",
-                      "6 Months",
-                      "1 Year"
+                      "2",
+                      "6",
+                      "12"
                     ]}
                     label="Validity"
                     className="mb-2 ml-0 "
@@ -151,8 +168,8 @@ const [formData, setFormData] = useState<IFormData>({ insurance_product_name: ""
                     className="mb-2 mr-0 "
                     labelSize="12px"
                     type="number"
-                    value={formData?.number_to_generate}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("number_to_generate", e.target.value)}
+                    value=""
+                    
                   />
                   <Button
                     text="Submit"

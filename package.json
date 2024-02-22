@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint"
   },
+  "proxy": "https://afriscience-59aa5aca58b6.herokuapp.com",
   "dependencies": {
     "@tinymce/tinymce-react": "^4.3.2",
     "axios": "^1.6.7",
