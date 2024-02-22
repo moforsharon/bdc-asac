@@ -42,6 +42,7 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
   };
   const [selectedInsurance, setSelectedInsurance] = useState<string>("");
   const [selectedValidity, setSelectedValidity] = useState<number>(0);
+  const [price, setPrice] = useState<number>(0);
   
 
   const handleInsuranceChange = (value: string) => {
@@ -52,6 +53,12 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
    let newVal = parseInt(value)
     setSelectedValidity(newVal); 
     // handleChange("product_validity", newVal)
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    let newVal = parseInt(e.target.value)
+    setPrice(newVal); 
   };
   const apiUrl = 'https://afriscience-59aa5aca58b6.herokuapp.com/api/create_insurance_product/';
 
@@ -64,7 +71,7 @@ const proxiedApiUrl = "/api/createInsuranceProduct";
             const response = await axios.post(proxiedApiUrl, {
               name : formData.name,
               product_type: formData.product_type,
-              product_price: formData.product_price,
+              product_price: price,
               product_validity: selectedValidity
 
       });
@@ -145,8 +152,8 @@ const proxiedApiUrl = "/api/createInsuranceProduct";
                     placeholder={"Enter price of insurance"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData.product_price} // Pass the selected value
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("product_price", e.target.value)}
+                    value={price} // Pass the selected value
+                    onChange={handlePriceChange}
                     type="number"
                   />
                   <Dropdown
