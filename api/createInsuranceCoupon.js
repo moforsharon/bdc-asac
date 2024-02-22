@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-    const apiUrl = 'https://afriscience-59aa5aca58b6.herokuapp.com/api/create_insurance_product/';
+    const apiUrl = 'https://afriscience-59aa5aca58b6.herokuapp.com/api/create_insurance_coupon/';
 
     try {
         const response = await axios.post(apiUrl, req.body);

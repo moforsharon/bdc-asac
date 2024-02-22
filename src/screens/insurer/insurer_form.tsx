@@ -60,10 +60,10 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
     let newVal = parseInt(e.target.value)
     setPrice(newVal); 
   };
-  const apiUrl = 'https://afriscience-59aa5aca58b6.herokuapp.com/api/create_insurance_product/';
+
 
 // Modified API URL with reverse proxy service
-const proxiedApiUrl = "/api/createInsuranceProduct";
+const proxiedApiUrl = "/api/createInsuranceCoupon";
     const handleSubmitClick = async (e:React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
       setActiveTab("Finished");
