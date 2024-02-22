@@ -68,7 +68,7 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
      e.preventDefault();
       setActiveTab("Finished");
           try {
-          const response = await axios.get('/api/createInsuranceProduct', {
+          const response = await axios.get('/api/createInsuranceCoupon', {
       params: {
         name: formData.name,
         product_type: formData.product_type,
