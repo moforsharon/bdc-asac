@@ -75,17 +75,20 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
   
 
   const handleInsuranceChange = (value: string) => {
+    setShowAlert(false)
     setSelectedInsurance(value);
     handleChange("product_type", value);
   };
   const handleValidityChange = (value: string) => {
-   let newVal = parseInt(value)
+    setShowAlert(false)
+    let newVal = parseInt(value)
     setSelectedValidity(newVal); 
     // handleChange("product_validity", newVal)
   };
 
   const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
+    setShowAlert(false)
     let newVal = parseInt(e.target.value)
     setPrice(newVal); 
   };
@@ -167,7 +170,7 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
                     className="mb-2 mr-0 "
                     labelSize="12px"
                     value={formData?.name}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("name", e.target.value)}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => {handleChange("name", e.target.value); setShowAlert(false)}}
                     
                   />
                   <Dropdown
