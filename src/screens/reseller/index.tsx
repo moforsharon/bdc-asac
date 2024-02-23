@@ -74,7 +74,7 @@ const ResellerForm = () => {
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
     const [showAlert, setShowAlert] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<number | string>();
     const [response, setResponse] = useState<CouponApiResponse | null>(null)
     const [formData, setFormData] = useState<IFormData>({ insured_name: "", insurance_insured_address:"", insurance_insured_profession: "", insurance_policenumber: "", insurance_vehicle_make: "", insurance_vehicle_registration_chassis: "", insurance_category_of_use: 0, insurance_product: 0, insurance_vehicle_type: "", insurance_validity: 0 });
   const handleTabClick = (tab: any) => {
