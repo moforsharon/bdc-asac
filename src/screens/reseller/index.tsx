@@ -1,19 +1,34 @@
 import { Button, CustomInput, PasswordInput, Text, Dropdown } from "@/src/components";
 import Head from "next/head";
 import '../../../styles/globals.css'
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaCheckCircle, FaDownload } from 'react-icons/fa';
+import axios from "axios";
 
+
+interface Product {
+  id: number;
+  name: string;
+  product_type: string;
+  product_price: number;
+  product_validity: number;
+}
+
+interface ApiResponse {
+  status: string;
+  items: Product[];
+}
 interface IFormData {
-    insured_name: string; // Define the type for insuranceName property
-    insured_address: string
-    insured_profession: string,
-    insured_police_number: string;
-    insured_vehicle_make: string;
-    insured_chassis_number: string;
-    insured_category: string;
-    insured_product_type: string;
-    insured_product_validity:string
+  insured_name:string ,
+  insurance_insured_address: string,
+  insurance_insured_profession: string,
+  insurance_policenumber: string,
+  insurance_validity:number,
+  insurance_product: number,
+  insurance_vehicle_make: string,
+  insurance_vehicle_registration_chassis: string,
+  insurance_vehicle_type: string,
+  insurance_category_of_use: number,
 
 }
 interface TabItemProps {
@@ -36,8 +51,11 @@ const TabItem: React.FC<TabItemProps> = ({ title, active, onClick }) => {
 const ResellerForm = () => {
     const [activeTab, setActiveTab] = useState("New Insurance");
     const [selectedType, setSelectedType] = useState<string>("");
-    const [selectedValidity, setSelectedValidity] = useState<string>("");
-    const [formData, setFormData] = useState<IFormData>({ insured_name: "", insured_address:"", insured_profession: "", insured_police_number: "", insured_vehicle_make: "", insured_chassis_number: "", insured_category: "", insured_product_type: "", insured_product_validity: "" });
+    const [selectedValidity, setSelectedValidity] = useState<number | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<string>("");
+    const [selectedProduct1, setSelectedProduct1] = useState<number | null>(null);
+    const [formData, setFormData] = useState<IFormData>({ insured_name: "", insurance_insured_address:"", insurance_insured_profession: "", insurance_policenumber: "", insurance_vehicle_make: "", insurance_vehicle_registration_chassis: "", insurance_category_of_use: 0, insurance_product: 0, insurance_vehicle_type: "", insurance_validity: 0 });
   const handleTabClick = (tab: any) => {
     setActiveTab(tab);
   };
@@ -49,17 +67,52 @@ const ResellerForm = () => {
     };
   const handleTypeChange = (value: string) => {
     setSelectedType(value);
-    handleChange("insured_product_type", value);
+    handleChange("insurance_vehicle_type", value);
   };
+
   const handleValidityChange = (value: string) => {
-    setSelectedValidity(value); 
-    handleChange("insured_product_validity", value)
+    const newVal = parseInt(value)
+    setSelectedValidity(newVal); 
+  };
+  const handleCategoryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const newVal = parseInt(e.target.value)
+    setSelectedCategory(newVal); 
   };
     const handleSubmitClick = (e:React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-    console.log(formData);
+    console.log({
+      insured_name:formData.insured_name,
+      insurance_insured_address: formData.insurance_insured_address,
+      insurance_insured_profession: formData.insurance_insured_profession,
+      insurance_policenumber: formData.insurance_policenumber,
+      insurance_validity:selectedValidity,
+      insurance_product: selectedProduct1,
+      insurance_vehicle_make: formData.insurance_vehicle_make,
+      insurance_vehicle_registration_chassis: formData.insurance_vehicle_registration_chassis,
+      insurance_vehicle_type: formData.insurance_vehicle_type,
+      insurance_category_of_use: selectedCategory,
+    });
     setActiveTab("Finished");
   };
+  const [products, setProducts] = useState<ApiResponse | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/api/getInsuranceProducts');
+        if (response) {
+          setProducts(response.data);
+          console.log(products)
+        } else {
+          console.error('Failed to fetch products:', response);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      }
+    };
+    fetchProducts();
+  }, []);
   return (
     <div className="">
       <Head>
@@ -106,33 +159,70 @@ const ResellerForm = () => {
                     placeholder={"Enter address"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData.insured_address}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_address", e.target.value)}
+                    value={formData.insurance_insured_address}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_insured_address", e.target.value)}
                   />
                   <CustomInput
                     label="Profession"
                     placeholder={"Enter Profession"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insured_profession}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_profession", e.target.value)}
+                    value={formData.insurance_insured_profession}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_insured_profession", e.target.value)}
                     />
                     <CustomInput
                     label="Police Number"
                     placeholder={"Enter police number"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insured_police_number}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_police_number", e.target.value)}
+                    value={formData.insurance_policenumber}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_policenumber", e.target.value)}
                   /> 
+                  {/* Dropdown for product */}
+                  {products !== null && (
+                  <div
+                    className={`flex flex-col  justify-start align-start w-full  mb-2 ml-0`}
+                  >
+                    <Text
+                      variant="small"
+                      className={`!text-[12px] capitalize !mb-[3px]`}
+                      color="primary"
+                      text="Insurance product"
+                    />
+                    <select
+                      name=""
+                      id=""
+                      className={`flex justify-between items-center md:px-[16px] px-[21.5px] py-1 text-grey3 border-grey3 border-[1px] rounded-lg bg-transparent text-[13px] flex-wrap h-10 gap-2  overflow-x-auto`}
+                      value={selectedProduct}
+                      onChange={(event) => {
+                        setSelectedProduct(event.target.value);
+                        const newValue = parseInt(selectedProduct);
+                        setSelectedProduct1(newValue)
+                        // handleChange("insurance_policenumber", selectedProduct)
+                        console.log("Selected value:", selectedProduct1);
+                      }}
+                    >
+                      <option value="">Select</option>
+                      {products.items.map(product => (
+                        <option
+                          key={product.id}
+                          value={product.id}
+                          className="!mb-0 sm:text-[12px] xl:text-[14px] "
+                        >
+                          {product.name}
+                        </option>
+                      ))}
+                      
+                    </select>
+                  </div>)}
                     <Dropdown
                         placeholder="How long is the insurance valid"
                         data={[
-                        "2 Month",
-                        "6 Months",
-                        "1 Year"
+                        "2",
+                        "6",
+                        "1"
                         ]}
-                        label="Validity"
+                        label="Validity (months)"
                         className="mb-2 ml-0 "
                         labelSize="12px"
                         value={selectedValidity} // Pass the selected value
@@ -143,18 +233,18 @@ const ResellerForm = () => {
                     placeholder={"Vehicle make"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insured_vehicle_make}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_vehicle_make", e.target.value)}
+                    value={formData.insurance_vehicle_make}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_vehicle_make", e.target.value)}
                   />
                   <CustomInput
                     label="Registration or chassis number"
                     placeholder={"enter registration or chassis number"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insured_chassis_number}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_chassis_number", e.target.value)}
+                    value={formData.insurance_vehicle_registration_chassis}
+                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insurance_vehicle_registration_chassis", e.target.value)}
                   />
-                    <Dropdown
+                  <Dropdown
                     placeholder="Type"
                     data={ [
                             "Passenger Cars",
@@ -178,7 +268,7 @@ const ResellerForm = () => {
                             "Pickup Trucks",
                             "Dump Trucks"
                             ]}
-                    label="Type"
+                    label="Vehicle type"
                     className="mb-2 ml-0 "
                     labelSize="12px"
                     value={selectedType} // Pass the selected value
@@ -189,8 +279,9 @@ const ResellerForm = () => {
                     placeholder={"use"}
                     className="mb-2 mr-0 "
                     labelSize="12px"
-                    value={formData?.insured_category}
-                    onChange={(e:React.ChangeEvent<HTMLInputElement>) => handleChange("insured_category", e.target.value)}
+                    type="number"
+                    value={selectedCategory}
+                    onChange={handleCategoryChange}
                   />
                   <Button
                     text="Submit"
