@@ -6,18 +6,7 @@ import { FaCheckCircle, FaDownload } from 'react-icons/fa';
 import axios from "axios";
 
 
-interface Product {
-  id: number;
-  name: string;
-  product_type: string;
-  product_price: number;
-  product_validity: number;
-}
 
-interface ApiResponse {
-  status: string;
-  items: Product[];
-}
 interface IFormData {
   insured_name:string ,
   insurance_insured_address: string,
@@ -31,6 +20,25 @@ interface IFormData {
   insurance_category_of_use: number,
 
 }
+interface IResponseData {
+  id: number;
+  insured_name:string ,
+  insurance_insured_address: string,
+  insurance_insured_profession: string,
+  insurance_policenumber: string,
+  insurance_validity:number,
+  insurance_product: number,
+  insurance_vehicle_make: string,
+  insurance_vehicle_registration_chassis: string,
+  insurance_vehicle_type: string,
+  insurance_category_of_use: number,
+
+}
+interface ApiResponse {
+  status: string;
+  item: IResponseData;
+}
+
 interface TabItemProps {
   title: string;
   active: boolean;
@@ -53,8 +61,10 @@ const ResellerForm = () => {
     const [selectedType, setSelectedType] = useState<string>("");
     const [selectedValidity, setSelectedValidity] = useState<number | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
-    const [selectedProduct, setSelectedProduct] = useState<string>("");
-    const [selectedProduct1, setSelectedProduct1] = useState<number | null>(null);
+    const [showAlert, setShowAlert] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
+    const [response, setResponse] = useState<ApiResponse | null>(null)
     const [formData, setFormData] = useState<IFormData>({ insured_name: "", insurance_insured_address:"", insurance_insured_profession: "", insurance_policenumber: "", insurance_vehicle_make: "", insurance_vehicle_registration_chassis: "", insurance_category_of_use: 0, insurance_product: 0, insurance_vehicle_type: "", insurance_validity: 0 });
   const handleTabClick = (tab: any) => {
     setActiveTab(tab);
@@ -79,22 +89,44 @@ const ResellerForm = () => {
     const newVal = parseInt(e.target.value)
     setSelectedCategory(newVal); 
   };
-    const handleSubmitClick = (e:React.MouseEvent<HTMLButtonElement>) => {
-     e.preventDefault();
-    console.log({
+  const handleSubmitClick = async (e:React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (formData.insured_name === "" || formData.insurance_insured_address === "" || formData.insurance_insured_profession === "" ||
+    formData.insurance_policenumber === "" || selectedValidity === null || selectedProduct === null || formData.insurance_vehicle_make === ""
+    || formData.insurance_vehicle_registration_chassis === "" || formData.insurance_vehicle_type === "" || selectedCategory === null) {
+     setShowAlert(true)
+    }else {
+    setIsSubmitting(true);
+         try {
+         const response = await axios.get('/api/createInsuranceCoupon', {
+     params: {
       insured_name:formData.insured_name,
       insurance_insured_address: formData.insurance_insured_address,
       insurance_insured_profession: formData.insurance_insured_profession,
       insurance_policenumber: formData.insurance_policenumber,
       insurance_validity:selectedValidity,
-      insurance_product: selectedProduct1,
+      insurance_product: selectedProduct,
       insurance_vehicle_make: formData.insurance_vehicle_make,
       insurance_vehicle_registration_chassis: formData.insurance_vehicle_registration_chassis,
       insurance_vehicle_type: formData.insurance_vehicle_type,
       insurance_category_of_use: selectedCategory,
-    });
-    setActiveTab("Finished");
-  };
+     }
+   });
+           console.log(response.data);
+           setResponse(response.data) 
+           setIsSubmitting(false);   // Handle success response
+           if (response.data.status === "success") {
+             console.log(response)
+             setActiveTab("Finished");
+           } else {
+             //handle some other case
+           }
+   } catch (error) {
+     console.error('Error submitting form data:', error); // Handle error
+     setIsSubmitting(false);
+   }
+ }
+ };
   const [products, setProducts] = useState<ApiResponse | null>(null);
 
   useEffect(() => {
@@ -144,6 +176,9 @@ const ResellerForm = () => {
                   variant="large"
                 />
               </div>
+              {showAlert && <div  className="w-[90%] md:w-[70%] flex flex-col justify-start items-center mt-5">
+                <p className="text-[#e73b3b] text-xs">*Please fill all form fields</p>
+              </div>}
               <div className="w-full flex flex-col justify-around items-center">
                 <div className="w-[90%] md:w-[70%] flex flex-col justify-around items-center mt-5">
                   <CustomInput
@@ -195,11 +230,9 @@ const ResellerForm = () => {
                       className={`flex justify-between items-center md:px-[16px] px-[21.5px] py-1 text-grey3 border-grey3 border-[1px] rounded-lg bg-transparent text-[13px] flex-wrap h-10 gap-2  overflow-x-auto`}
                       value={selectedProduct}
                       onChange={(event) => {
-                        setSelectedProduct(event.target.value);
-                        const newValue = parseInt(selectedProduct);
-                        setSelectedProduct1(newValue)
-                        // handleChange("insurance_policenumber", selectedProduct)
-                        console.log("Selected value:", selectedProduct1);
+                        const newValue = parseInt(event.target.value);
+                        setSelectedProduct(newValue);
+                        console.log("Selected value:", newValue);
                       }}
                     >
                       <option value="">Select</option>
@@ -220,7 +253,7 @@ const ResellerForm = () => {
                         data={[
                         "2",
                         "6",
-                        "1"
+                        "12"
                         ]}
                         label="Validity (months)"
                         className="mb-2 ml-0 "
@@ -283,13 +316,26 @@ const ResellerForm = () => {
                     value={selectedCategory}
                     onChange={handleCategoryChange}
                   />
-                  <Button
-                    text="Submit"
-                    onClick={handleSubmitClick}
-                    className="w-full mt-4 md:mt-4 text-center bg-black text-white"
-                    variant="small"
-                    type="primary"
-                  />
+                  {isSubmitting ? (
+                      <button
+                        type="submit"
+                        className="w-full flex justify-around mt-4 md:mt-4 text-center bg-black text-white py-2 rounded-md"
+                      >
+                          <div className="w-4 h-4 relative">
+                          <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                      </button>
+                  ) : (
+                    <Button
+                      text="Submit"
+                      onClick={handleSubmitClick}
+                      className="w-full mt-4 md:mt-4 text-center bg-black text-white"
+                      variant="small"
+                      type="primary"
+                    />
+                  )}
                 </div>
               </div>
             </div>)}
@@ -303,56 +349,64 @@ const ResellerForm = () => {
                     variant="large"
                   />
                 </div>
-                <div className="w-full flex flex-col justify-around items-center mt-8">
-                  <Text
-                    text="Insured, Name and Address  : Name"
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Profession"
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Police Number : noiho"
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Valid from : 12/10/23      to : 1/3/24"
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Vehicle(make) : "
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Registration or chassis number : "
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Type : "
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                  <Text
-                    text="Use"
-                    style={{ textDecoration: "none", fontSize: "15px"}}
-                    variant="normal"
-                    className=""
-                  />
-                </div>
+                {response !== null && (
+                  <div className="w-full flex flex-col justify-around items-center mt-8">
+                    <Text
+                      text={`Insured, Name and Address  : ${response.item.insured_name}, ${response.item.insurance_insured_address}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Profession : ${response.item.insurance_insured_profession}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Police Number : ${response.item.insurance_policenumber}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Insurance Product : ${response.item.insurance_product}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Valid for ${response.item.insurance_validity} months`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Vehicle(make) : ${response.item.insurance_vehicle_make}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Registration or Chassis number: ${response.item.insurance_vehicle_registration_chassis}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Vehicle Type: ${response.item.insurance_vehicle_type}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                    <Text
+                      text={`Category of use: ${response.item.insurance_category_of_use}`}
+                      style={{ textDecoration: "none", fontSize: "15px"}}
+                      variant="normal"
+                      className=""
+                    />
+                  </div>
+                )}
                 <div className="w-full flex justify-between items-center mt-8">
                   <Button
                     text="Create new insurance"
