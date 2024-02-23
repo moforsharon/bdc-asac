@@ -11,6 +11,17 @@ interface IFormData {
   product_validity: number;
 
 }
+// Define an interface to describe the shape of the response data
+interface ApiResponse {
+  status: string;
+  item: {
+    id: number;
+    name: string;
+    product_type: string;
+    product_price: number;
+    product_validity: number;
+  };
+}
 interface TabItemProps {
   title: string;
   active: boolean;
@@ -28,6 +39,21 @@ const TabItem: React.FC<TabItemProps> = ({ title, active, onClick }) => {
     </div>
   );
 };
+//spinner component 
+const Spinner = () => {
+  return (
+    <button
+    type="submit"
+    className="w-full flex justify-around mt-4 md:mt-4 text-center bg-black text-white py-2 rounded-md"
+  >
+      <div className="w-4 h-4 relative">
+      <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin" style={{ animationDelay: '0.1s' }}></div>
+      <div className="w-4 h-4 absolute border-2 border-white border-t-transparent rounded-full animate-spin" style={{ animationDelay: '0.2s' }}></div>
+    </div>
+    </button>
+  );
+};
 const InsurerForm = () => {
   const [activeTab, setActiveTab] = useState("New Insurance");
 const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"", product_price: 0, product_validity: 0 });
@@ -42,7 +68,10 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
   };
   const [selectedInsurance, setSelectedInsurance] = useState<string>("");
   const [selectedValidity, setSelectedValidity] = useState<number>(0);
-  const [price, setPrice] = useState<number>(0);
+  const [price, setPrice] = useState<number | null>(null);
+  const [response, setResponse] = useState<ApiResponse | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
   
 
   const handleInsuranceChange = (value: string) => {
@@ -62,11 +91,15 @@ const [formData, setFormData] = useState<IFormData>({ name: "", product_type:"",
   };
 
 
-// Modified API URL with reverse proxy service
+  // Modified API URL with reverse proxy service
+  
 const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insurance_product/`;
     const handleSubmitClick = async (e:React.MouseEvent<HTMLButtonElement>) => {
      e.preventDefault();
-      setActiveTab("Finished");
+     if (formData.name === "" || formData.product_type === "" || price === 0 || price === null || selectedValidity === 0 ) {
+      setShowAlert(true)
+     }else {
+     setIsSubmitting(true);
           try {
           const response = await axios.get('/api/createInsuranceCoupon', {
       params: {
@@ -76,12 +109,22 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
         product_validity: selectedValidity
       }
     });
-      console.log(response.data); // Handle success response
-      setActiveTab("Finished");
+            console.log(response.data);
+            setResponse(response.data) 
+            setIsSubmitting(false);   // Handle success response
+            if (response.data.status === "success") {
+              console.log(response)
+              setActiveTab("Finished");
+            } else {
+              //handle some other case
+            }
     } catch (error) {
       console.error('Error submitting form data:', error); // Handle error
+      setIsSubmitting(false);
     }
+  }
   };
+  
   return (
     <div className="">
       <Head>
@@ -113,6 +156,9 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
                   variant="large"
                 />
               </div>
+              {showAlert && <div  className="w-[90%] md:w-[70%] flex flex-col justify-start items-center mt-5">
+                <p className="text-[#e73b3b] text-xs">*Please fill all form fields</p>
+              </div>}
               <div className="w-full flex flex-col justify-around items-center">
                 <div className="w-[90%] md:w-[70%] flex flex-col justify-around items-center mt-5">
                   <CustomInput
@@ -164,13 +210,13 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
                       "6",
                       "12"
                     ]}
-                    label="Validity"
+                    label="Validity (months)"
                     className="mb-2 ml-0 "
                     labelSize="12px"
                     value={selectedValidity}
                     onChange={handleValidityChange}
                   />
-                  <CustomInput
+                  {/* <CustomInput
                     label="Number to generate"
                     placeholder={"Enter number of copies to be generated"}
                     className="mb-2 mr-0 "
@@ -178,14 +224,18 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
                     type="number"
                     value=""
                     
-                  />
-                  <Button
-                    text="Submit"
-                    onClick={handleSubmitClick}
-                    className="w-full mt-4 md:mt-4 text-center bg-black text-white"
-                    variant="small"
-                    type="primary"
-                  />
+                  /> */}
+                  {isSubmitting ? (
+                    <Spinner /> 
+                  ) : (
+                    <Button
+                      text="Submit"
+                      onClick={handleSubmitClick}
+                      className="w-full mt-4 md:mt-4 text-center bg-black text-white"
+                      variant="small"
+                      type="primary"
+                    />
+                  )}
                 </div>
               </div>
             </div>)}
@@ -199,38 +249,39 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
                     variant="large"
                   />
                 </div>
+                  {response !== null && (
                 <div className="w-full flex flex-col justify-around items-center mt-8">
                   <Text
-                    text="Name of Insurance : Name"
+                    text={`Name of Insurance: ${response.item.name}`}
                     style={{ textDecoration: "none", fontSize: "15px"}}
                     variant="normal"
                     className=""
                   />
                   <Text
-                    text="Type of Insurance : Auto Insurance"
+                    text={`Type of Insurance : ${response.item.product_type}`}
                     style={{ textDecoration: "none", fontSize: "15px"}}
                     variant="normal"
                     className=""
                   />
                   <Text
-                    text="Price : 100,000 FCFA"
+                    text={`Price : ${response.item.product_price} FCFA`}
                     style={{ textDecoration: "none", fontSize: "15px"}}
                     variant="normal"
                     className=""
                   />
                   <Text
-                    text="Validity : 6 Months"
+                      text={`Validity : ${response.item.product_validity} Months`}
                     style={{ textDecoration: "none", fontSize: "15px"}}
                     variant="normal"
                     className=""
                   />
-                  <Text
+                  {/* <Text
                     text="Batch Number : 00000001"
                     style={{ textDecoration: "none", fontSize: "15px"}}
                     variant="normal"
                     className=""
-                  />
-                </div>
+                  /> */}
+                </div>)}
                 <div className="w-full flex justify-between items-center mt-8">
                   <Button
                     text="Create new insurance"
