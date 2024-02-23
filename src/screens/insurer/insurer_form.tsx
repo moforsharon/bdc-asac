@@ -104,7 +104,7 @@ const apiUrl = `${process.env.NEXT_PUBLIC_SERVERLESS_FUNCTION_URL}/create_insura
      }else {
      setIsSubmitting(true);
           try {
-          const response = await axios.get('/api/createInsuranceCoupon', {
+          const response = await axios.get('/api/createInsuranceProduct', {
       params: {
         name: formData.name,
         product_type: formData.product_type,
