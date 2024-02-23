@@ -34,11 +34,22 @@ interface IResponseData {
   insurance_category_of_use: number,
 
 }
-interface ApiResponse {
+interface IProducts {
+  id: number;
+  name: string; // Define the type for insuranceName property
+  product_type: string
+  product_price: number,
+  product_validity: number;
+
+}
+interface CouponApiResponse {
   status: string;
   item: IResponseData;
 }
-
+interface ApiResponse {
+  status: string;
+  items: IProducts[];
+}
 interface TabItemProps {
   title: string;
   active: boolean;
@@ -64,7 +75,7 @@ const ResellerForm = () => {
     const [showAlert, setShowAlert] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<number | null>(null);
-    const [response, setResponse] = useState<ApiResponse | null>(null)
+    const [response, setResponse] = useState<CouponApiResponse | null>(null)
     const [formData, setFormData] = useState<IFormData>({ insured_name: "", insurance_insured_address:"", insurance_insured_profession: "", insurance_policenumber: "", insurance_vehicle_make: "", insurance_vehicle_registration_chassis: "", insurance_category_of_use: 0, insurance_product: 0, insurance_vehicle_type: "", insurance_validity: 0 });
   const handleTabClick = (tab: any) => {
     setActiveTab(tab);
